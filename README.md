@@ -1,4 +1,4 @@
 bearded-ninja
 =============
 
-...Using more github-recommended names.
+Contains a gambling expirimentation script!
