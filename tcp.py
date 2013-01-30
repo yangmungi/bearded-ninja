@@ -10,6 +10,7 @@ class Gambler:
     self.state = None
 
   def gamble(self):
+    """Determine how monies"""
     if self.state is None:
       gambled = self.initial
     elif self.state is 'grow':
@@ -27,10 +28,12 @@ class Gambler:
     return gambled
 
   def spend(self, gambled = 0):
+    """Give monies"""
     self.memory = gambled
     self.wallet -= gambled
 
   def earn(self, winnings):
+    """Receive monies"""
     self.wallet += winnings
     self.react(winnings)
 
@@ -44,21 +47,24 @@ class Gambler:
       self.state = 'half'
     
   def exits(self):
-    return self.wallet > self.initial * 300
+    return self.wallet > self.initial * 29 
 
 class Casino:
   def __init__(self, minimum_gamble = 5):
     self.minimum_gamble = minimum_gamble
 
   def is_valid_gambler(self, gambler):
+    """Bouncer"""
     if gambler.wallet < self.minimum_gamble:
       return False
     return True
 
   def play(self, gambled):
+    """Represents total return for play"""
     return self.play_game() * 2 * gambled
       
   def play_game(self):
+    """Represents if during a play the result was a win or loss"""
     card = random()
     if card > 0.5055:
       return 1
@@ -79,8 +85,7 @@ for i in xrange(total_plays):
   counter = 0
   maximum = 0
 
-  while not gambler.exits() and gambler.wallet > 0 \
-      and casino.is_valid_gambler(gambler):
+  while not gambler.exits() and casino.is_valid_gambler(gambler):
     gambled = gambler.gamble()
 
     if gambled <= 0:
