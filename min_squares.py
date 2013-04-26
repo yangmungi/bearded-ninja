@@ -4,7 +4,10 @@ import logging
 
 def min_squares(width, height):
     """Determine the minimum number of squares used in a rectangle."""
-    logging.info("%s x %s" % (width, height))
+    if width <= 0 or height <= 0:
+        return 0
+
+    logging.debug("%s x %s" % (width, height))
     mod_r = height
     low = width
 
@@ -39,6 +42,6 @@ if __name__ == "__main__":
         h = int(sys.argv[2])
         
     # The big test is to do this in constant time?
-    min_c = min_squares(w, h)
-
-    print min_c
+    for i in xrange(w): 
+        min_c = min_squares(i, h)
+        print "%s x %s" % (i, h), min_c
