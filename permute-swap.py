@@ -26,7 +26,7 @@ def solve(entire, len_entire, solved_index, counter):
     for i in xrange(next_index, len_entire):
         swap(entire, solved_index, i)
         counter = solve(entire, len_entire, next_index, counter)
-        #swap(entire, solved_index, i)
+        swap(entire, solved_index, i)
 
     return counter
 
