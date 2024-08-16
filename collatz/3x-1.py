@@ -23,7 +23,7 @@ while True:
         if num == 1:
             sys.stdout.write(str(num))
 
-    print 
-    print counter
+    print()
+    print(counter)
 
 

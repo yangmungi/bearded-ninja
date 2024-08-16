@@ -1,6 +1,5 @@
 import pprint
 """
-
 93 -> 280 -> 140 -> 70
 40 -> 20
 Maybe numbers ending in 0 are special?
@@ -8,7 +7,6 @@ Maybe numbers ending in 0 are special?
 91 -> 274 -> 137 -> 412 -> 206 -> 103 -> 310 -> 155
 74 -> 37 -> 112 -> 56
 12 -> 6
-
 """
 ones_index = {}
 
