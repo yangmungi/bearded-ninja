@@ -1,26 +1,12 @@
 require 'json'
 require 'pp'
 
+# for manual settings...
 iv = [
-[1, 8, 8],
-
-[2, 1, 0, 8, 8],
-[2, 0, 1, 0, 0, 8, 8],
-
-[0, 2, 0, 1, 0, 0, 0, 8, 8],
-[0, 2, 0, 0, 1, 0, 0, 0, 0, 8, 8],
-[0, 0, 2, 0, 0, 1, 0, 0, 0, 0, 0, 8, 8],
-[0, 0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 8, 8],
-
-[3, 0, 0, 2, 0, 0, 0, 1],
-[3, 0, 0, 2, 0, 0, 0, 0, 1],
-[3, 0, 0, 0, 2, 0, 0, 0, 0, 1],
-[3, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1],
-[3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1],
-[3, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1],
-[3, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1],
-[3, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 1],
+  [1]
 ]
+
+# auto generation of a lot of nodes...
 
 nodes = 2 ** 4 - 2
 half = nodes / 2
@@ -91,13 +77,7 @@ iv = []
   iv[i] = ivi
 end
 
-#<<-CBLK
-puts '['
-iv.each do |d|
-  puts '[' + d.join(',') + ']'
-end
-puts ']'
-#CBLK
+# convert to NxN matrix
 
 target = iv.reduce(0) do |a, e|
   l = e.length
@@ -111,6 +91,8 @@ end
 while iv.length < target do
   iv << []
 end
+
+# and normalize to 1
 
 iv.each do |d|
   while d.length < target do
