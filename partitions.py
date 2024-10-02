@@ -1,11 +1,12 @@
 #!/bin/python
 """
-Partitioning of numbers.
+https://en.wikipedia.org/wiki/Integer_partition
 """
 
 import sys
 
-def departition(base, parent = None):
+
+def departition(base, parent=None):
     num = base
 
     part = []
@@ -16,31 +17,30 @@ def departition(base, parent = None):
         diff = base - sub_part_sum
 
         if parent is None or num <= parent:
-          if sub_part_sum < base:
-              de_part = departition(diff, num)
-              for de_sub_part in de_part:
-                  sub_part = sub_part + de_sub_part
-                  part.append(sub_part)
-                  sub_part = [num]
-          else:
-              part.append(sub_part)
-        num -= 1;
+            if sub_part_sum < base:
+                de_part = departition(diff, num)
+                for de_sub_part in de_part:
+                    sub_part = sub_part + de_sub_part
+                    part.append(sub_part)
+                    sub_part = [num]
+            else:
+                part.append(sub_part)
+        num -= 1
     return part
-        
-if len(sys.argv) == 2:
-    base = int(sys.argv[1])
-else:
-    base = 7
 
-print "Start with %d " % 10
 
-sizes = []
+if __name__ == "__main__":
+    if len(sys.argv) == 2:
+        base = int(sys.argv[1])
+    else:
+        base = 7
 
-for i in xrange(base):
-    departitions = departition(i)
+    sizes = []
 
-    sizes.append(len(departitions))
-    for depart in departitions:
-        print depart
-    print 
-print sizes
+    for i in range(base):
+        departitions = departition(i)
+        sizes.append(len(departitions))
+        for depart in departitions:
+            print(depart)
+        print()
+    print(sizes)
