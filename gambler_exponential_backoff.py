@@ -1,45 +1,51 @@
-#!/usr/bin/python
-
+import math
 from random import random
 
+def col_round(x):
+  frac = x - math.floor(x)
+  if frac < 0.5: 
+    return math.floor(x)
+  return math.ceil(x)
+
 class Gambler:
-  def __init__(self, wallet = 0):
+  def __init__(self, wallet:int=20, exit_ratio:int=30, divisor:int=20):
     self.wallet = wallet
-    self.initial = wallet / 20
+    self.initial = wallet // divisor 
     self.memory = 0
     self.state = None
+    self.exit_cond = self.initial * exit_ratio
 
   def gamble(self):
-    """Determine how monies"""
     if self.state is None:
       gambled = self.initial
-    elif self.state is 'grow':
-      gambled = self.memory * 2
-    elif self.state is 'half':
-      gambled = self.memory / 2
-    elif self.state is 'linear':
+    elif self.state == 'grow':
+      gambled = self.memory * 2.0
+    elif self.state == 'half':
+      gambled = self.memory / 2.0
+    elif self.state == 'linear':
       gambled = self.memory + self.initial
 
-    gambled = round(gambled)
+    gambled_round = col_round(gambled)
+    if gambled_round == 0:
+      print(gambled, gambled_round)
 
-    if gambled > self.wallet:
-      gambled = self.wallet
+    if gambled_round > self.wallet:
+      gambled_round = self.wallet
 
-    return gambled
+    return gambled_round
 
   def spend(self, gambled = 0):
-    """Give monies"""
     self.memory = gambled
     self.wallet -= gambled
 
   def earn(self, winnings):
-    """Receive monies"""
     self.wallet += winnings
     self.react(winnings)
 
   def react(self, winnings):
+    """Starts off geometrically growing, then goes to backoff to linear growth.""" 
     if winnings > 0:
-      if self.state is None or self.state is 'grow':
+      if self.state is None or self.state == 'grow':
         self.state = 'grow'
       else:
         self.state = 'linear'
@@ -47,11 +53,13 @@ class Gambler:
       self.state = 'half'
     
   def exits(self):
-    return self.wallet > self.initial * 29 
+    return self.wallet > self.exit_cond
 
 class Casino:
-  def __init__(self, minimum_gamble = 5):
+  def __init__(self, minimum_gamble=5, win_rate=0.5055, return_rate=2):
     self.minimum_gamble = minimum_gamble
+    self.win_rate = win_rate
+    self.return_rate = return_rate
 
   def is_valid_gambler(self, gambler):
     """Bouncer"""
@@ -60,62 +68,94 @@ class Casino:
     return True
 
   def play(self, gambled):
-    """Represents total return for play"""
-    return self.play_game() * 2 * gambled
-      
-  def play_game(self):
-    """Represents if during a play the result was a win or loss"""
     card = random()
-    if card > 0.5055:
-      return 1
-    return 0
+
+    win_int = 0
+    if card > self.win_rate:
+      win_int = 1
+
+    return win_int * self.return_rate * gambled
 
 ###
+if __name__ == '__main__':
+  import argparse
 
-casino = Casino(1)
-counters = []
-maxers = []
-enders = []
+  ap = argparse.ArgumentParser()
+  ap.add_argument('--win-rate', '-w', type=float, default=0.5)
+  ap.add_argument('--return-rate', '-r', default=None)
+  ap.add_argument('--min-gamble', '-m', type=int, default=1)
+  ap.add_argument('--start-money', '-s', type=int, default=20)
+  ap.add_argument('--bet-divisor', '-d', type=int, default=20)
+  ap.add_argument('--exit-ratio', '-e', type=int, default=30)
+  ap.add_argument('--num-games', '-n', type=int, default=5)
 
-total_plays = 100
-initial = 20
+  pa, _ = ap.parse_known_args()
 
-for i in xrange(total_plays):
-  gambler = Gambler(initial)
-  counter = 0
-  maximum = 0
+  casino = Casino(pa.min_gamble)
 
-  while not gambler.exits() and casino.is_valid_gambler(gambler):
-    gambled = gambler.gamble()
+  total_rounds = 0
+  max_game_length = 0
 
-    if gambled <= 0:
-      print " Gambled 0 - quit"
-      break
+  total_maxes = 0
+  max_max = 0
 
-    if gambled < casino.minimum_gamble:
-      gambled = casino.minimum_gamble
+  enders = []
 
-    gambler.spend(gambled)
-    earned = casino.play(gambled)
-    gambler.earn(earned)
+  total_games = pa.num_games
+  initial = pa.start_money
 
-    if gambler.wallet > maximum:
-      maximum = gambler.wallet
+  for i in range(total_games):
+    gambler = Gambler(initial)
+    counter = 0
+    maximum = 0
+    print(f'-- game {i + 1} / {total_games} --')
 
-    print " Gambling %3d - earned %3d - has %4d" % \
-      (gambled, earned, gambler.wallet)
-    counter += 1
+    while casino.is_valid_gambler(gambler):
+      if gambler.exits():
+        print(f'{counter + 1:3d} won enough - quit')
+        break
 
-  counters.append(counter)
-  maxers.append(maximum)
+      elif not casino.is_valid_gambler(gambler):
+        print(f'{counter + 1:3d} not enough to gamble - quit')
+        break
 
-  enders.append(gambler.wallet - initial)
+      gambled = gambler.gamble()
 
-  print "played %d, max %d" % (counter, maximum)
+      if gambled <= 0:
+        print(f"{counter + 1:3d} gambled 0 - quit")
+        break
 
-enders_count = len(filter(lambda x: x > 0, enders))
+      if gambled < casino.minimum_gamble:
+        gambled = casino.minimum_gamble
 
-print "average play length: %f" % (float(sum(counters)) / len(counters))
-print "average max: %f - max max: %d" % (float(sum(maxers)) / len(maxers), max(maxers))
-print "winning plays: %d / %d" % (enders_count, total_plays)
-print "outcome: %d ($%d)" % (sum(enders), sum(enders) * 5)
+      gambler.spend(gambled)
+      earned = casino.play(gambled)
+      gambler.earn(earned)
+
+      if gambler.wallet > maximum:
+        maximum = gambler.wallet
+
+      print(f"{counter + 1:3d} gambling {gambled:3d} - earned {earned:3d} - has {gambler.wallet:4d}")
+      counter += 1
+
+      if counter > max_game_length:
+        max_game_length = counter
+
+      if maximum > max_max:
+        max_max = maximum
+
+    total_rounds += counter
+    total_maxes += maximum
+
+    enders.append(gambler.wallet - initial)
+
+    print(f"played {counter}, max {maximum}")
+
+  enders_count = len(list(filter(lambda x: x > 0, enders)))
+
+  print('-- stats --')
+
+  print(f"play length average: {float(total_rounds) / total_games:.1f} max: {max_game_length}")
+  print(f"average max: {float(total_maxes) / total_games:.1f} max max: {max_max}")
+  print(f"winning plays: {enders_count} / {total_games}")
+  print(f"outcome: {sum(enders)}")
