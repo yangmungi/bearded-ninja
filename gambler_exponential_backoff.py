@@ -3,6 +3,7 @@ from random import random
 
 
 def col_round(x):
+    """from https://www.reddit.com/r/learnpython/comments/92ne2s/why_does_round05_0/"""
     frac = x - math.floor(x)
     if frac < 0.5:
         return math.floor(x)
@@ -20,11 +21,11 @@ class Gambler:
     def gamble(self):
         if self.state is None:
             gambled = self.initial
-        elif self.state == 'grow':
+        elif self.state == "grow":
             gambled = self.memory * 2.0
-        elif self.state == 'half':
+        elif self.state == "half":
             gambled = self.memory / 2.0
-        elif self.state == 'linear':
+        elif self.state == "linear":
             gambled = self.memory + self.initial
 
         gambled_round = col_round(gambled)
@@ -47,12 +48,12 @@ class Gambler:
     def react(self, winnings):
         """Starts off geometrically growing, then goes to backoff to linear growth."""
         if winnings > 0:
-            if self.state is None or self.state == 'grow':
-                self.state = 'grow'
+            if self.state is None or self.state == "grow":
+                self.state = "grow"
             else:
-                self.state = 'linear'
+                self.state = "linear"
         else:
-            self.state = 'half'
+            self.state = "half"
 
     def exits(self):
         return self.wallet > self.exit_cond
@@ -81,17 +82,17 @@ class Casino:
 
 
 ###
-if __name__ == '__main__':
+if __name__ == "__main__":
     import argparse
 
     ap = argparse.ArgumentParser()
-    ap.add_argument('--win-rate', '-w', type=float, default=0.5)
-    ap.add_argument('--return-rate', '-r', default=None)
-    ap.add_argument('--min-gamble', '-m', type=int, default=1)
-    ap.add_argument('--start-money', '-s', type=int, default=20)
-    ap.add_argument('--bet-divisor', '-d', type=int, default=20)
-    ap.add_argument('--exit-ratio', '-e', type=int, default=30)
-    ap.add_argument('--num-games', '-n', type=int, default=5)
+    ap.add_argument("--win-rate", "-w", type=float, default=0.5)
+    ap.add_argument("--return-rate", "-r", default=None)
+    ap.add_argument("--min-gamble", "-m", type=int, default=1)
+    ap.add_argument("--start-money", "-s", type=int, default=20)
+    ap.add_argument("--bet-divisor", "-d", type=int, default=20)
+    ap.add_argument("--exit-ratio", "-e", type=int, default=30)
+    ap.add_argument("--num-games", "-n", type=int, default=5)
 
     pa, _ = ap.parse_known_args()
 
@@ -112,21 +113,21 @@ if __name__ == '__main__':
         gambler = Gambler(initial)
         counter = 0
         maximum = 0
-        print(f'-- game {i + 1} / {total_games} --')
+        print(f"-- game {i + 1} / {total_games} --")
 
         while casino.is_valid_gambler(gambler):
             if gambler.exits():
-                print(f'{counter + 1:3d} won enough - quit')
+                print(f"{counter + 1:3d} won enough - quit")
                 break
 
             elif not casino.is_valid_gambler(gambler):
-                print(f'{counter + 1:3d} not enough to gamble - quit')
+                print(f"{counter + 1:3d} not enough to gamble - quit")
                 break
 
             gambled = gambler.gamble()
 
             if gambled <= 0:
-                print(f'{counter + 1:3d} gambled 0 - quit')
+                print(f"{counter + 1:3d} gambled 0 - quit")
                 break
 
             if gambled < casino.minimum_gamble:
@@ -140,7 +141,7 @@ if __name__ == '__main__':
                 maximum = gambler.wallet
 
             print(
-                f'{counter + 1:3d} gambling {gambled:3d} - earned {earned:3d} - has {gambler.wallet:4d}'
+                f"{counter + 1:3d} gambling {gambled:3d} - earned {earned:3d} - has {gambler.wallet:4d}"
             )
             counter += 1
 
@@ -155,15 +156,15 @@ if __name__ == '__main__':
 
         enders.append(gambler.wallet - initial)
 
-        print(f'played {counter}, max {maximum}')
+        print(f"played {counter}, max {maximum}")
 
     enders_count = len(list(filter(lambda x: x > 0, enders)))
 
-    print('-- stats --')
+    print("-- stats --")
 
     print(
-        f'play length average: {float(total_rounds) / total_games:.1f} max: {max_game_length}'
+        f"play length average: {float(total_rounds) / total_games:.1f} max: {max_game_length}"
     )
-    print(f'average max: {float(total_maxes) / total_games:.1f} max max: {max_max}')
-    print(f'winning plays: {enders_count} / {total_games}')
-    print(f'outcome: {sum(enders)}')
+    print(f"average max: {float(total_maxes) / total_games:.1f} max max: {max_max}")
+    print(f"winning plays: {enders_count} / {total_games}")
+    print(f"outcome: {sum(enders)}")
